@@ -1,22 +1,40 @@
-import { StrictMode } from "react";
-import { createRoot } from "react-dom/client";
-import OlympicsDashboard from "./OlympicsDashboard.jsx";
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-createRoot(document.getElementById("root")).render(
-  <StrictMode>
-    <OlympicsDashboard />
-  </StrictMode>
-);
-```
+    <!-- Tab title and favicon -->
+    <title>2026 Winter Olympics Medal Tracker</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>❄️</text></svg>" />
 
-**The inline `<style>` block** — prevents a flash of white before React loads by setting the background to your dark navy color immediately. Without this the page briefly flashes white on load.
+    <!-- Fonts preloaded for performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Barlow+Condensed:wght@300;400;600;700;800&display=swap"
+      rel="stylesheet"
+    />
 
-**The fonts `<link>` tags** — preloads Space Mono and Barlow Condensed from Google Fonts before React even runs, so the text renders in the right font immediately instead of swapping in late.
+    <!-- Reset browser default margin/padding and prevent flash of white -->
+    <style>
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+      html, body { height: 100%; }
+      body {
+        background-color: #04091e;
+        color: #e8f4ff;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+      #root { min-height: 100%; }
+    </style>
+  </head>
 
-**The emoji favicon** — puts a ❄️ in the browser tab using a tiny inline SVG, no image file needed.
+  <body>
+    <!-- React mounts your dashboard here -->
+    <div id="root"></div>
 
-Your final `src/` folder should look like:
-```
-src/
-├── main.jsx               ← mounts React into #root
-└── OlympicsDashboard.jsx  ← your dashboard component
+    <!-- Vite injects the bundled JS here at build time -->
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
