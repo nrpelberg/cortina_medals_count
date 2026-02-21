@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, BarChart, Bar, Cell } from "recharts";
 
 // ─── CONFIG: update this to your GitHub Pages base URL ────────────────────────
-const DATA_BASE_URL = "https://yourusername.github.io/olympics-medals/data";
+const DATA_BASE_URL = "https://nrpelberg.github.io/cortina_medals_count/data";
 
 const LINE_COLORS = ["#60c8ff", "#f0c040", "#c084fc", "#f97316", "#34d399", "#f43f5e", "#a3e635", "#38bdf8", "#fb923c", "#e879f9"];
 
