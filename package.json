@@ -1,5 +1,5 @@
 {
-  "name": "olympics-medals",
+  "name": "cortina-medal-count",
   "version": "1.0.0",
   "description": "2026 Winter Olympics medal tracker — daily ETL pipeline + React dashboard",
   "private": true,
