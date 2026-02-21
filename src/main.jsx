@@ -8,7 +8,9 @@ const LINE_COLORS = ["#60c8ff", "#f0c040", "#c084fc", "#f97316", "#34d399", "#f4
 
 // ─── CSV PARSER ───────────────────────────────────────────────────────────────
 function parseCSV(text) {
-  const [headerLine, ...lines] = text.trim().split("\n");
+  // Normalize line endings (handles Windows \r\n and Unix \n)
+  const normalized = text.trim().replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+  const [headerLine, ...lines] = normalized.split("\n");
   const headers = headerLine.split(",").map(h => h.trim());
   return lines
     .filter(l => l.trim())
