@@ -32,12 +32,13 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Run scraper
-        run: python scripts/olympics_medal_scraper.py
+        run: python scraper/olympics_medal_scraper.py
 
-      - name: Copy CSVs into data folder
+      - name: Copy CSVs into public/data folder
         run: |
-          cp medal_table_latest.csv data/medal_table_latest.csv
-          cp medal_table_history.csv data/medal_table_history.csv
+          mkdir -p public/data
+          cp medal_table_latest.csv public/data/medal_table_latest.csv
+          cp medal_table_history.csv public/data/medal_table_history.csv
 
       - name: Commit and push updated data
         run: |
