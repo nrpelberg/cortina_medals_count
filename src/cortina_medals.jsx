@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, BarChart, Bar, Cell } from "recharts";
 
-// ─── CONFIG: update this to your GitHub Pages base URL ────────────────────────
+// ─── CONFIG ───────────────────────────────────────────────────────────────────
 const DATA_BASE_URL = "https://nrpelberg.github.io/cortina_medals_count/data";
 
 const LINE_COLORS = ["#60c8ff", "#f0c040", "#c084fc", "#f97316", "#34d399", "#f43f5e", "#a3e635", "#38bdf8", "#fb923c", "#e879f9"];
@@ -25,8 +25,6 @@ function parseCSV(text) {
 }
 
 // ─── Transform history CSV rows into recharts-friendly shape ──────────────────
-// Input rows: { Scrape_Date, Country, Gold, ... } (one row per country per day)
-// Output rows: { date: "Feb 06", Norway: 3, USA: 2, ... } (one row per day)
 function buildHistoryChartData(rows) {
   const byDate = {};
   for (const row of rows) {
@@ -95,7 +93,6 @@ const Snowflakes = () => {
         @keyframes fadeIn { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes slideIn { from { opacity: 0; transform: translateX(-12px); } to { opacity: 1; transform: translateX(0); } }
         @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.6; } }
-        @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Barlow+Condensed:wght@300;400;600;700;800&display=swap');
       `}</style>
       {flakes.map(f => (
         <div key={f.id} style={{
@@ -144,7 +141,6 @@ export default function OlympicsDashboard() {
         const history = parseCSV(historyText);
         const chartHistory = buildHistoryChartData(history);
 
-        // Derive country list from top 5 gold leaders for the time series selector
         const top5 = [...latest]
           .sort((a, b) => b.Gold - a.Gold)
           .slice(0, 5)
@@ -175,42 +171,6 @@ export default function OlympicsDashboard() {
   const totalSilver = latestData.reduce((s, r) => s + r.Silver, 0);
   const totalBronze = latestData.reduce((s, r) => s + r.Bronze, 0);
 
-  // ── styles ──
-  const S = {
-    root: {
-      minHeight: "100vh", background: "linear-gradient(160deg, #04091e 0%, #0a1535 40%, #081428 100%)",
-      fontFamily: "'Barlow Condensed', sans-serif", color: "#e8f4ff", position: "relative",
-      padding: "0 0 60px",
-    },
-    header: {
-      padding: "40px 40px 0", display: "flex", alignItems: "flex-start",
-      justifyContent: "space-between", flexWrap: "wrap", gap: 20,
-      animation: loaded ? "fadeIn 0.6s ease both" : "none",
-    },
-    titleBlock: { display: "flex", flexDirection: "column", gap: 4 },
-    eyebrow: {
-      fontFamily: "'Space Mono', monospace", fontSize: 11, letterSpacing: 4,
-      color: "#60c8ff", textTransform: "uppercase", opacity: 0.8,
-    },
-    title: {
-      fontSize: "clamp(28px, 5vw, 52px)", fontWeight: 800, lineHeight: 1,
-      background: "linear-gradient(135deg, #ffffff 30%, #60c8ff 100%)",
-      WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
-      letterSpacing: -1,
-    },
-    subtitle: { fontSize: 16, color: "#7ab3d4", fontWeight: 300, marginTop: 4 },
-    liveChip: {
-      display: "inline-flex", alignItems: "center", gap: 6, padding: "6px 14px",
-      background: "rgba(96,200,255,0.08)", border: "1px solid rgba(96,200,255,0.25)",
-      borderRadius: 999, fontSize: 12, fontFamily: "'Space Mono', monospace",
-      color: "#60c8ff", letterSpacing: 1,
-    },
-    liveDot: {
-      width: 7, height: 7, borderRadius: "50%", background: "#4ade80",
-      animation: "pulse 1.5s infinite",
-    },
-  };
-
   // ── Loading state ──
   if (!loaded) return (
     <div style={{ minHeight: "100vh", background: "linear-gradient(160deg, #04091e 0%, #0a1535 40%, #081428 100%)",
@@ -235,9 +195,44 @@ export default function OlympicsDashboard() {
       </div>
     </div>
   );
+
+  // ── Styles (defined AFTER early returns) ──────────────────────────────────
+  const S = {
+    root: {
+      minHeight: "100vh", background: "linear-gradient(160deg, #04091e 0%, #0a1535 40%, #081428 100%)",
+      fontFamily: "'Barlow Condensed', sans-serif", color: "#e8f4ff", position: "relative",
+      padding: "0 0 60px",
+    },
+    header: {
+      padding: "40px 40px 0", display: "flex", alignItems: "flex-start",
+      justifyContent: "space-between", flexWrap: "wrap", gap: 20,
+      animation: "fadeIn 0.6s ease both",
+    },
+    titleBlock: { display: "flex", flexDirection: "column", gap: 4 },
+    eyebrow: {
+      fontFamily: "'Space Mono', monospace", fontSize: 11, letterSpacing: 4,
+      color: "#60c8ff", textTransform: "uppercase", opacity: 0.8,
+    },
+    title: {
+      fontSize: "clamp(28px, 5vw, 52px)", fontWeight: 800, lineHeight: 1,
+      background: "linear-gradient(135deg, #ffffff 30%, #60c8ff 100%)",
+      WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
+      letterSpacing: -1,
+    },
+    subtitle: { fontSize: 16, color: "#7ab3d4", fontWeight: 300, marginTop: 4 },
+    liveChip: {
+      display: "inline-flex", alignItems: "center", gap: 6, padding: "6px 14px",
+      background: "rgba(96,200,255,0.08)", border: "1px solid rgba(96,200,255,0.25)",
+      borderRadius: 999, fontSize: 12, fontFamily: "'Space Mono', monospace",
+      color: "#60c8ff", letterSpacing: 1,
+    },
+    liveDot: {
+      width: 7, height: 7, borderRadius: "50%", background: "#4ade80",
+      animation: "pulse 1.5s infinite",
+    },
     statsRow: {
       display: "flex", gap: 16, padding: "28px 40px 0", flexWrap: "wrap",
-      animation: loaded ? "fadeIn 0.7s 0.1s ease both" : "none", opacity: loaded ? 1 : 0,
+      animation: "fadeIn 0.7s 0.1s ease both",
     },
     statCard: (accent) => ({
       flex: "1 1 140px", background: "rgba(255,255,255,0.03)",
@@ -249,7 +244,7 @@ export default function OlympicsDashboard() {
     statValue: (accent) => ({ fontSize: 36, fontWeight: 800, color: accent, lineHeight: 1 }),
     tabs: {
       display: "flex", gap: 4, padding: "28px 40px 0",
-      animation: loaded ? "fadeIn 0.7s 0.2s ease both" : "none", opacity: loaded ? 1 : 0,
+      animation: "fadeIn 0.7s 0.2s ease both",
     },
     tab: (active) => ({
       padding: "9px 22px", borderRadius: 999, border: "1px solid rgba(96,200,255,0.2)",
@@ -260,7 +255,7 @@ export default function OlympicsDashboard() {
     }),
     panel: {
       margin: "24px 40px 0",
-      animation: loaded ? "fadeIn 0.5s 0.3s ease both" : "none", opacity: loaded ? 1 : 0,
+      animation: "fadeIn 0.5s 0.3s ease both",
     },
     card: {
       background: "rgba(255,255,255,0.03)", border: "1px solid rgba(96,200,255,0.1)",
@@ -278,7 +273,7 @@ export default function OlympicsDashboard() {
       alignItems: "center", cursor: "pointer",
       background: hovered ? "rgba(96,200,255,0.06)" : rank <= 3 ? "rgba(96,200,255,0.02)" : "transparent",
       transition: "background 0.15s",
-      animation: loaded ? `slideIn 0.4s ${0.05 * rank}s ease both` : "none",
+      animation: `slideIn 0.4s ${0.05 * rank}s ease both`,
     }),
     rankBadge: (rank) => ({
       width: 28, height: 28, borderRadius: "50%", display: "flex", alignItems: "center",
@@ -321,10 +316,10 @@ export default function OlympicsDashboard() {
         {/* ── Stat Cards ── */}
         <div style={S.statsRow}>
           {[
-            { label: "Gold Medals Awarded",   value: totalGold,   accent: "#f0c040" },
-            { label: "Silver Medals Awarded",  value: totalSilver, accent: "#b0bec5" },
-            { label: "Bronze Medals Awarded",  value: totalBronze, accent: "#cd7f32" },
-            { label: "Nations on Board",       value: LATEST_DATA.length, accent: "#60c8ff" },
+            { label: "Gold Medals Awarded",   value: totalGold,         accent: "#f0c040" },
+            { label: "Silver Medals Awarded",  value: totalSilver,       accent: "#b0bec5" },
+            { label: "Bronze Medals Awarded",  value: totalBronze,       accent: "#cd7f32" },
+            { label: "Nations on Board",       value: latestData.length, accent: "#60c8ff" },
           ].map(({ label, value, accent }) => (
             <div key={label} style={S.statCard(accent)}>
               <span style={S.statLabel}>{label}</span>
@@ -416,7 +411,6 @@ export default function OlympicsDashboard() {
           {/* TIME SERIES VIEW */}
           {view === "timeseries" && (
             <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-              {/* Country selector */}
               <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
                 <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 11, color: "#60c8ff", letterSpacing: 2, textTransform: "uppercase" }}>Countries:</span>
                 {countries.map((c, i) => (
@@ -434,7 +428,7 @@ export default function OlympicsDashboard() {
               <div style={S.card}>
                 <div style={{ padding: "20px 24px 8px" }}>
                   <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 11, color: "#60c8ff", letterSpacing: 3, textTransform: "uppercase" }}>
-                    Gold Medal Progression · Feb 6 – 16, 2026
+                    Gold Medal Progression · {historyData[0]?.date ?? ""} – {historyData[historyData.length - 1]?.date ?? ""}
                   </div>
                 </div>
                 <div style={{ padding: "0 10px 24px" }}>
@@ -457,7 +451,7 @@ export default function OlympicsDashboard() {
 
               {/* Mini country cards */}
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))", gap: 12 }}>
-                {countries.filter(c => selectedCountries.includes(c)).map((c, i) => {
+                {countries.filter(c => selectedCountries.includes(c)).map((c) => {
                   const ci = countries.indexOf(c);
                   const row = latestData.find(r => r.Country === c);
                   const latest = historyData[historyData.length - 1]?.[c] ?? 0;
