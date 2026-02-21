@@ -1,12 +1,14 @@
 """
 2026 Winter Olympics Medal Table Scraper
 Fetches data from Wikipedia and outputs a formatted medal count table.
+Appends daily snapshots to a historical CSV for time series analysis.
 """
 
 import requests
 from bs4 import BeautifulSoup
 import pandas as pd
 from datetime import datetime
+import os
 
 
 def scrape_medal_table(url: str = "https://en.wikipedia.org/wiki/2026_Winter_Olympics_medal_table") -> pd.DataFrame:
@@ -64,12 +66,13 @@ def scrape_medal_table(url: str = "https://en.wikipedia.org/wiki/2026_Winter_Oly
             continue
 
         rows.append({
-            "Rank":    rank,
-            "Country": country,
-            "Gold":    int(gold)   if gold.isdigit()   else 0,
-            "Silver":  int(silver) if silver.isdigit() else 0,
-            "Bronze":  int(bronze) if bronze.isdigit() else 0,
-            "Total":   int(total)  if total.isdigit()  else 0,
+            "Scrape_Date": datetime.now().strftime("%Y-%m-%d"),
+            "Rank":        rank,
+            "Country":     country,
+            "Gold":        int(gold)   if gold.isdigit()   else 0,
+            "Silver":      int(silver) if silver.isdigit() else 0,
+            "Bronze":      int(bronze) if bronze.isdigit() else 0,
+            "Total":       int(total)  if total.isdigit()  else 0,
         })
 
     df = pd.DataFrame(rows)
@@ -78,9 +81,10 @@ def scrape_medal_table(url: str = "https://en.wikipedia.org/wiki/2026_Winter_Oly
 
 def display_table(df: pd.DataFrame) -> None:
     """Prints a nicely formatted medal table to the console."""
+    scrape_date = df["Scrape_Date"].iloc[0] if not df.empty else "N/A"
     print("\n" + "=" * 60)
     print(f"  2026 WINTER OLYMPICS MEDAL TABLE")
-    print(f"  Scraped: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    print(f"  Scraped: {scrape_date}")
     print("=" * 60)
     print(f"{'Rank':<6} {'Country':<30} {'🥇 Gold':<10} {'🥈 Silver':<10} {'🥉 Bronze':<10} {'Total':<6}")
     print("-" * 60)
@@ -101,10 +105,31 @@ def display_table(df: pd.DataFrame) -> None:
     print("=" * 60)
 
 
-def save_to_csv(df: pd.DataFrame, filename: str = "medal_table.csv") -> None:
-    """Saves the DataFrame to a CSV file."""
+def save_snapshot(df: pd.DataFrame, filename: str = "medal_table_latest.csv") -> None:
+    """Saves today's snapshot as a standalone CSV (always overwritten)."""
     df.to_csv(filename, index=False)
-    print(f"\nData saved to: {filename}")
+    print(f"Latest snapshot saved to: {filename}")
+
+
+def append_to_history(df: pd.DataFrame, history_file: str = "medal_table_history.csv") -> None:
+    """
+    Appends today's snapshot to the historical CSV for time series analysis.
+    If the file already contains today's date, it replaces that date's rows
+    so re-running the scraper on the same day stays idempotent.
+    """
+    today = df["Scrape_Date"].iloc[0]
+
+    if os.path.exists(history_file):
+        existing = pd.read_csv(history_file)
+        # Drop any rows already recorded for today (idempotent re-runs)
+        existing = existing[existing["Scrape_Date"] != today]
+        combined = pd.concat([existing, df], ignore_index=True)
+    else:
+        combined = df
+
+    combined.to_csv(history_file, index=False)
+    total_dates = combined["Scrape_Date"].nunique()
+    print(f"History file updated: {history_file} ({total_dates} day(s) of data)")
 
 
 if __name__ == "__main__":
@@ -114,9 +139,12 @@ if __name__ == "__main__":
     # Display in terminal
     display_table(df)
 
-    # Save to CSV
-    save_to_csv(df)
+    # Save today's snapshot (overwrites each run)
+    save_snapshot(df)
+
+    # Append to rolling history file for time series (idempotent)
+    append_to_history(df)
 
     # Optional: show top 5
     print("\nTop 5 countries by gold medals:")
-    print(df.head(5).to_string(index=False))
+    print(df[["Scrape_Date", "Rank", "Country", "Gold", "Silver", "Bronze", "Total"]].head(5).to_string(index=False))
