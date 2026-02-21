@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "2026 Winter Olympics medal tracker — daily ETL pipeline + React dashboard",
   "private": true,
-  "homepage": "https://yourusername.github.io/olympics-medals",
+  "homepage": "https://nrpelberg.github.io/cortina_medals_count",
 
   "scripts": {
     "dev": "vite",
