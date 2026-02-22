@@ -8,7 +8,6 @@ const LINE_COLORS = ["#60c8ff", "#f0c040", "#c084fc", "#f97316", "#34d399", "#f4
 
 // ─── CSV PARSER ───────────────────────────────────────────────────────────────
 function parseCSV(text) {
-  // Normalize line endings (handles Windows \r\n and Unix \n)
   const normalized = text.trim().replace(/\r\n/g, "\n").replace(/\r/g, "\n");
   const [headerLine, ...lines] = normalized.split("\n");
   const headers = headerLine.split(",").map(h => h.trim());
@@ -56,9 +55,11 @@ const MedalIcon = ({ type, size = 20 }) => {
 
 const CountryFlag = ({ country }) => {
   const flags = {
-    "Norway": "🇳🇴", "USA": "🇺🇸", "Germany": "🇩🇪", "Austria": "🇦🇹",
+    "Norway": "🇳🇴", "United States": "🇺🇸", "Germany": "🇩🇪", "Austria": "🇦🇹",
     "Switzerland": "🇨🇭", "Canada": "🇨🇦", "Sweden": "🇸🇪", "France": "🇫🇷",
-    "Netherlands": "🇳🇱", "South Korea": "🇰🇷"
+    "Netherlands": "🇳🇱", "South Korea": "🇰🇷", "Italy": "🇮🇹", "Japan": "🇯🇵",
+    "China": "🇨🇳", "Australia": "🇦🇺", "Great Britain": "🇬🇧", "Finland": "🇫🇮",
+    "Czech Republic": "🇨🇿", "Slovenia": "🇸🇮", "Poland": "🇵🇱", "Spain": "🇪🇸",
   };
   return <span style={{ fontSize: 20, marginRight: 8 }}>{flags[country] || "🏳️"}</span>;
 };
@@ -113,23 +114,28 @@ export default function OlympicsDashboard() {
   const [medalType, setMedalType] = useState("Gold");
   const [hoveredRow, setHoveredRow] = useState(null);
   const [loaded, setLoaded] = useState(false);
+  const [fetchError, setFetchError] = useState(null);
 
   // ── Data state ──
   const [latestData, setLatestData] = useState([]);
   const [historyData, setHistoryData] = useState([]);
   const [countries, setCountries] = useState([]);
   const [selectedCountries, setSelectedCountries] = useState([]);
-  const [fetchError, setFetchError] = useState(null);
   const [lastUpdated, setLastUpdated] = useState(null);
 
   // ── Fetch CSVs on mount ──
   useEffect(() => {
     async function loadData() {
       try {
+        console.log("Fetching from:", DATA_BASE_URL);
+
         const [latestRes, historyRes] = await Promise.all([
           fetch(`${DATA_BASE_URL}/medal_table_latest.csv`),
           fetch(`${DATA_BASE_URL}/medal_table_history.csv`),
         ]);
+
+        console.log("latest status:", latestRes.status);
+        console.log("history status:", historyRes.status);
 
         if (!latestRes.ok) throw new Error(`latest CSV: ${latestRes.status}`);
         if (!historyRes.ok) throw new Error(`history CSV: ${historyRes.status}`);
@@ -139,14 +145,21 @@ export default function OlympicsDashboard() {
           historyRes.text(),
         ]);
 
+        console.log("latestText preview:", latestText.slice(0, 200));
+
         const latest = parseCSV(latestText);
         const history = parseCSV(historyText);
         const chartHistory = buildHistoryChartData(history);
+
+        console.log("parsed latest rows:", latest.length, latest[0]);
+        console.log("parsed history rows:", history.length);
 
         const top5 = [...latest]
           .sort((a, b) => b.Gold - a.Gold)
           .slice(0, 5)
           .map(r => r.Country);
+
+        console.log("top5 countries:", top5);
 
         setLatestData(latest);
         setHistoryData(chartHistory);
@@ -157,7 +170,7 @@ export default function OlympicsDashboard() {
         console.error("Failed to load medal data:", err);
         setFetchError(err.message);
       } finally {
-        setTimeout(() => setLoaded(true), 100);
+        setLoaded(true); // ← removed setTimeout, set immediately
       }
     }
     loadData();
@@ -193,12 +206,12 @@ export default function OlympicsDashboard() {
       <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 13, color: "#f97316", letterSpacing: 2 }}>FAILED TO LOAD DATA</div>
       <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 11, color: "#7ab3d4", textAlign: "center", maxWidth: 420 }}>
         {fetchError}<br /><br />
-        Make sure DATA_BASE_URL is set to your GitHub Pages URL and the CSV files exist in your <code>data/</code> folder.
+        Check the browser console for more details.
       </div>
     </div>
   );
 
-  // ── Styles (defined AFTER early returns) ──────────────────────────────────
+  // ── Styles ────────────────────────────────────────────────────────────────
   const S = {
     root: {
       minHeight: "100vh", background: "linear-gradient(160deg, #04091e 0%, #0a1535 40%, #081428 100%)",
